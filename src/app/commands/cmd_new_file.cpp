@@ -134,6 +134,35 @@ void NewFileCommand::onExecute(Context* ctx)
     window.width()->setTextf("%d", std::max(1, w));
     window.height()->setTextf("%d", std::max(1, h));
 
+    int original_w = w;
+    int original_h = h;
+
+    // Set preset to user defined if width or height are changed manually
+    window.width()->Change.connect([&] {
+      if (window.sizePresetSelector()->getValue() != "0") {
+        window.sizePresetSelector()->setValue("0");
+      }
+    });
+
+    window.height()->Change.connect([&] {
+      if (window.sizePresetSelector()->getValue() != "0") {
+        window.sizePresetSelector()->setValue("0");
+      }
+    });
+
+    window.sizePresetSelector()->Change.connect([&] {
+      int preset = base::convert_to<int>(std::string(window.sizePresetSelector()->getValue()));
+      if (preset > 0) {
+        w = preset;
+        h = preset;
+      } else {
+        w = original_w;
+        h = original_h;
+      }
+      window.width()->setTextf("%d", std::max(1, w));
+      window.height()->setTextf("%d", std::max(1, h));
+    });
+
     // Select image-type
     window.colorMode()->setSelectedItem(int(colorMode));
 
